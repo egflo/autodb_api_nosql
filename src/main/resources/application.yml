@@ -1,0 +1,8 @@
+auth0:
+  audience: https://carvo/api
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://dev-ncqu2zod.us.auth0.com/
