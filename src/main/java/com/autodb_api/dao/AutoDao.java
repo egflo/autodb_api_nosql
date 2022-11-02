@@ -79,7 +79,7 @@ public class AutoDao {
         List<Meta> makes = (List<Meta>) metaRepository.findAllByType("make");
         List<String> makeNames = new ArrayList<>();
         for (Meta make : makes) {
-            makeNames.add(make.getName().toLowerCase());
+            makeNames.add(make.getName());
         }
         return makeNames;
     }
@@ -100,10 +100,10 @@ public class AutoDao {
         List<String> makes_params = new ArrayList<>();
 
         for (String param : params) {
-           if(bodyTypes.contains(param.toLowerCase())) {
-               type_params.add(param.toLowerCase());
-           } else if(makes.contains(param.toLowerCase())) {
-                makes_params.add(param.toLowerCase());
+           if(bodyTypes.contains(param)) {
+               type_params.add(param);
+           } else if(makes.contains(param)) {
+                makes_params.add(param);
            }
            else {
                makes_params.add("all");
@@ -134,8 +134,6 @@ public class AutoDao {
                                        Pageable pageRequest) {
 
 
-        List<String> bodyTypes = getBodyTypes();
-
         AbstractMap.SimpleEntry<List<String>, List<String>> tuple
                 = parseParams(params);
 
@@ -145,14 +143,18 @@ public class AutoDao {
 
         Query query = new Query();
 
-        for(String param :makes.size() > 0 ? makes : getMakes()) {
+        for(String param : makes.size() > 0 ? makes : getMakes()) {
 
-            Criteria criteria = Criteria.where("make").is(param.toUpperCase());
+            System.out.println("param: " + param);
+
+            Criteria criteria = Criteria.where("make").is(param);
+
+            List<Criteria> criteriaList = new ArrayList<>();
 
             if(types.size() > 0) {
                 for(String type : types) {
                     Criteria typeCriteria = Criteria.where("body").is(type);
-                    criteria = criteria.andOperator(typeCriteria);
+                    criteriaList.add(typeCriteria);
                 }
             }
 
@@ -161,7 +163,7 @@ public class AutoDao {
 
                 for(String code: codes) {
                     Criteria modelCriteria = Criteria.where("model").orOperator(Criteria.where("model").is(code));
-                    criteria = criteria.andOperator(modelCriteria);
+                    criteriaList.add(modelCriteria);
                 }
 
             }
@@ -172,23 +174,23 @@ public class AutoDao {
                 for(String code : codes) {
                     if(code.equals("isNew")) {
                         Criteria conditionCriteria = Criteria.where("isNew").is(true);
-                        criteria = criteria.orOperator(conditionCriteria);
+                        criteriaList.add(conditionCriteria);
                     }
                     else if (code.equals("isOemcpo")) {
                         Criteria conditionCriteria = Criteria.where("isOemcpo").is(true);
-                        criteria = criteria.orOperator(conditionCriteria);
+                        criteriaList.add(conditionCriteria);
                     }
                     else if (code.equals("isCpo")) {
                         Criteria conditionCriteria = Criteria.where("isCpo").is(true);
-                        criteria = criteria.orOperator(conditionCriteria);
+                        criteriaList.add(conditionCriteria);
                     }
                     else if (code.equals("isCertified")) {
                         Criteria conditionCriteria = Criteria.where("isCertified").is(true);
-                        criteria = criteria.orOperator(conditionCriteria);
+                        criteriaList.add(conditionCriteria);
                     }
                     else if (code.equals("isUsed")) {
                         Criteria conditionCriteria = Criteria.where("isUsed").is(true);
-                        criteria = criteria.orOperator(conditionCriteria);
+                        criteriaList.add(conditionCriteria);
                     }
 
                 }
@@ -198,8 +200,8 @@ public class AutoDao {
                 String[] codes = color_code.get().split("_");
 
                 for(String code: codes) {
-                    Criteria colorCriteria = Criteria.where("color").orOperator(Criteria.where("color").is(code));
-                    criteria = criteria.orOperator(colorCriteria);
+                    Criteria colorCriteria = Criteria.where("listing_color").is(code);
+                    criteriaList.add(colorCriteria);
                 }
 
             }
@@ -207,8 +209,8 @@ public class AutoDao {
             if(body_code.isPresent()) {
                 String[] codes = body_code.get().split("_");
                 for(String code: codes) {
-                    Criteria bodyCriteria = Criteria.where("body").orOperator(Criteria.where("body").is(code));
-                    criteria = criteria.orOperator(bodyCriteria);
+                    Criteria bodyCriteria = Criteria.where("body").elemMatch(Criteria.where("body_type").is(code));
+                    criteriaList.add(bodyCriteria);
                 }
 
             }
@@ -217,8 +219,8 @@ public class AutoDao {
                 String[] codes = drivetrain_code.get().split("_");
 
                 for(String code: codes) {
-                    Criteria drivetrainCriteria = Criteria.where("drivetrain").orOperator(Criteria.where("drivetrain").is(code));
-                    criteria = criteria.orOperator(drivetrainCriteria);
+                    Criteria drivetrainCriteria = Criteria.where("drivetrain").andOperator(Criteria.where("drivetrain").is(code));
+                    criteriaList.add(drivetrainCriteria);
                 }
 
             }
@@ -226,8 +228,8 @@ public class AutoDao {
             if(fuel_code.isPresent()) {
                 String[] codes = fuel_code.get().split("_");
                 for(String code: codes) {
-                    Criteria fuelCriteria = Criteria.where("fuel").orOperator(Criteria.where("fuel").is(code));
-                    criteria = criteria.orOperator(fuelCriteria);
+                    Criteria fuelCriteria = Criteria.where("fuel").andOperator(Criteria.where("fuel").is(code));
+                    criteriaList.add(fuelCriteria);
                 }
 
             }
@@ -237,24 +239,26 @@ public class AutoDao {
 
                 for(String code: codes) {
                     Criteria transmissionCriteria = Criteria.where("transmission").orOperator(Criteria.where("transmission").is(code));
+
+
                 }
 
             }
 
             if(start_year.isPresent() && end_year.isPresent()) {
                 Criteria yearCriteria = Criteria.where("year").gte(start_year.get()).lte(end_year.get());
-                criteria = criteria.andOperator(yearCriteria);
+                criteriaList.add(yearCriteria);
             } else if (start_year.isPresent()) {
                 Criteria yearCriteria = Criteria.where("year").gte(start_year.get());
-                criteria = criteria.andOperator(yearCriteria);
+                criteriaList.add(yearCriteria);
             } else if (end_year.isPresent()) {
                 Criteria yearCriteria = Criteria.where("year").lte(end_year.get());
-                criteria = criteria.andOperator(yearCriteria);
+                criteriaList.add(yearCriteria);
             }
 
             if(mileage.isPresent()) {
                 Criteria mileageCriteria = Criteria.where("mileage").lte(mileage.get());
-                criteria = criteria.andOperator(mileageCriteria);
+                criteriaList.add(mileageCriteria);
             }
 
             if(postcode.isPresent()) {
@@ -295,13 +299,20 @@ public class AutoDao {
 
             if(priceMin.isPresent() && priceMax.isPresent()) {
                 Criteria priceCriteria = Criteria.where("price").gte(priceMin.get()).lte(priceMax.get());
-                //criteria = criteria.andOperator(priceCriteria);
+                criteriaList.add(priceCriteria);
             } else if (priceMin.isPresent()) {
                 Criteria priceCriteria = Criteria.where("price").gte(priceMin.get());
-                //criteria = criteria.andOperator(priceCriteria);
+                criteriaList.add(priceCriteria);
             } else if (priceMax.isPresent()) {
                 Criteria priceCriteria = Criteria.where("price").lte(priceMax.get());
-                //criteria = criteria.andOperator(priceCriteria);
+                criteriaList.add(priceCriteria);
+            }
+
+
+            if(criteriaList.size() > 0) {
+                Criteria[] criteriaArray = new Criteria[criteriaList.size()];
+                criteriaList.toArray(criteriaArray);
+                query.addCriteria(new Criteria().andOperator(criteriaArray));
             }
 
             query.addCriteria(criteria);

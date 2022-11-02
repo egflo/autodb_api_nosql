@@ -2,6 +2,7 @@ package com.autodb_api.models;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 @Document(collection = "body")
 public class Body {
@@ -18,12 +19,18 @@ public class Body {
      *                     "wheelbase": wheelbase,
      *                     "width": width,
      */
+    @Field("body_type")
     private String bodyType;
     private String bed;
+    @Field("bed_height")
     private String bedHeight;
+    @Field("bed_length")
     private String bedLength;
+    @Field("cabin_length")
     private String cabinLength;
+    @Field("back_legroom")
     private String backLegroom;
+    @Field("front_legroom")
     private String frontLegroom;
     private String height;
     private String length;

@@ -6,31 +6,31 @@ import org.springframework.data.mongodb.core.mapping.Field;
 @Document(collection = "report")
 public class Report {
     @Field("frame_damaged")
-    private String frameDamage;
+    private Boolean frameDamage;
 
     @Field("has_accidents")
-    private String hasAccidents;
+    private Boolean hasAccidents;
 
     @Field("isCabriolet")
-    private String isCabriolet;
+    private Boolean isCabriolet;
 
     @Field("is_certified")
-    private String isCertified;
+    private Boolean isCertified;
 
     @Field("is_cpo")
-    private String isCpo;
+    private Boolean isCpo;
 
     @Field("is_new")
-    private String isNew;
+    private Boolean isNew;
 
     @Field("is_oemcpo")
-    private String isOemcpo;
+    private Boolean isOemcpo;
 
     @Field("owner_count")
     private String ownerCount;
 
     @Field("salvage")
-    private String salvage;
+    private Boolean salvage;
 
     @Field("theft_title")
     private String theftTitle;
@@ -39,59 +39,59 @@ public class Report {
     private String vehicleDamageCategory;
 
 
-    public String getFrameDamage() {
+    public Boolean getFrameDamage() {
         return frameDamage;
     }
 
-    public void setFrameDamage(String frameDamage) {
+    public void setFrameDamage(Boolean frameDamage) {
         this.frameDamage = frameDamage;
     }
 
-    public String getHasAccidents() {
+    public Boolean getHasAccidents() {
         return hasAccidents;
     }
 
-    public void setHasAccidents(String hasAccidents) {
+    public void setHasAccidents(Boolean hasAccidents) {
         this.hasAccidents = hasAccidents;
     }
 
-    public String getIsCabriolet() {
+    public Boolean getIsCabriolet() {
         return isCabriolet;
     }
 
-    public void setIsCabriolet(String isCabriolet) {
+    public void setIsCabriolet(Boolean isCabriolet) {
         this.isCabriolet = isCabriolet;
     }
 
-    public String getIsCertified() {
+    public Boolean getIsCertified() {
         return isCertified;
     }
 
-    public void setIsCertified(String isCertified) {
+    public void setIsCertified(Boolean isCertified) {
         this.isCertified = isCertified;
     }
 
-    public String getIsCpo() {
+    public Boolean getIsCpo() {
         return isCpo;
     }
 
-    public void setIsCpo(String isCpo) {
+    public void setIsCpo(Boolean isCpo) {
         this.isCpo = isCpo;
     }
 
-    public String getIsNew() {
+    public Boolean getIsNew() {
         return isNew;
     }
 
-    public void setIsNew(String isNew) {
+    public void setIsNew(Boolean isNew) {
         this.isNew = isNew;
     }
 
-    public String getIsOemcpo() {
+    public Boolean getIsOemcpo() {
         return isOemcpo;
     }
 
-    public void setIsOemcpo(String isOemcpo) {
+    public void setIsOemcpo(Boolean isOemcpo) {
         this.isOemcpo = isOemcpo;
     }
 
@@ -104,11 +104,11 @@ public class Report {
         this.ownerCount = ownerCount;
     }
 
-    public String getSalvage() {
+    public Boolean getSalvage() {
         return salvage;
     }
 
-    public void setSalvage(String salvage) {
+    public void setSalvage(Boolean salvage) {
         this.salvage = salvage;
     }
 

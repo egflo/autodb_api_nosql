@@ -4,55 +4,32 @@ package com.autodb_api.models;
 import com.mongodb.client.model.geojson.Point;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 @Document(collection = "dealer")
 public class Dealer {
-    @Id
-    private Integer id;
+    private String longitude;
 
-    private Double longitude;
+    private String latitude;
 
-    private Double latitude;
-
+    @Field("dealer_zip")
     private String postcode;
-
+    @Field("sp_name")
     private String name;
 
-    private Double spId;
-
-    private Double rating;
+    @Field("sp_id")
+    private String spId;
 
     private String city;
-
+    @Field("franchise_dealer")
     private Boolean franchiseDealer;
 
+    @Field("franchise_make")
     private String franchiseMake;
 
-    private Point location;
+    @Field("seller_rating")
+    private Double sellerRating;
 
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public Double getLongitude() {
-        return longitude;
-    }
-
-    public void setLongitude(Double longitude) {
-        this.longitude = longitude;
-    }
-
-    public Double getLatitude() {
-        return latitude;
-    }
-
-    public void setLatitude(Double latitude) {
-        this.latitude = latitude;
-    }
 
     public String getPostcode() {
         return postcode;
@@ -70,20 +47,20 @@ public class Dealer {
         this.name = name;
     }
 
-    public Double getSpId() {
+    public String getSpId() {
         return spId;
     }
 
-    public void setSpId(Double spId) {
+    public void setSpId(String spId) {
         this.spId = spId;
     }
 
     public Double getRating() {
-        return rating;
+        return sellerRating;
     }
 
     public void setRating(Double rating) {
-        this.rating = rating;
+        this.sellerRating = rating;
     }
 
     public String getCity() {
@@ -110,13 +87,28 @@ public class Dealer {
         this.franchiseMake = franchiseMake;
     }
 
-    public Point getLocation() {
-        return location;
+    public Double getSellerRating() {
+        return sellerRating;
     }
 
-    public void setLocation(Point location) {
-        this.location = location;
+    public void setSellerRating(Double sellerRating) {
+        this.sellerRating = sellerRating;
     }
 
 
+    public String getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(String longitude) {
+        this.longitude = longitude;
+    }
+
+    public String getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(String latitude) {
+        this.latitude = latitude;
+    }
 }

@@ -5,6 +5,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+import java.util.Date;
 import java.util.List;
 
 @Document(collection = "auto")
@@ -42,9 +43,6 @@ public class Auto {
     @Field("listing_color")
     private String listingColor;
 
-    @Field("listing_date")
-    private String listedDate;
-
     @Field("interior_color")
     private String interiorColor;
 
@@ -66,6 +64,20 @@ public class Auto {
 
     @Field("exterior_color")
     private String exteriorColor;
+
+    private String description;
+
+    private Double price;
+
+    private String vin;
+
+    private Dealer dealer;
+
+    private String cityMpg;
+
+    @Field("listeddate")
+    private Date listedDate;
+
 
     public String getId() {
 
@@ -157,11 +169,11 @@ public class Auto {
         this.listingColor = listingColor;
     }
 
-    public String getListedDate() {
+    public Date getListedDate() {
         return listedDate;
     }
 
-    public void setListedDate(String listedDate) {
+    public void setListedDate(Date listedDate) {
         this.listedDate = listedDate;
     }
 
@@ -253,4 +265,48 @@ public class Auto {
     public void setReport(Report report) {
         this.report = report;
     }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Double getPrice() {
+        return price;
+    }
+
+    public void setPrice(Double price) {
+        this.price = price;
+    }
+
+    public String getVin() {
+        return vin;
+    }
+
+    public void setVin(String vin) {
+        this.vin = vin;
+    }
+
+
+    public Dealer getDealer() {
+        return dealer;
+    }
+
+    public void setDealer(Dealer dealer) {
+        this.dealer = dealer;
+    }
+
+    public String getCityMpg() {
+        return cityMpg;
+    }
+
+    public void setCityMpg(String cityMpg) {
+        this.cityMpg = cityMpg;
+    }
+
+
+
 }
