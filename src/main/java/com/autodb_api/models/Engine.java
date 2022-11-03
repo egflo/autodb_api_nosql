@@ -1,18 +1,22 @@
 package com.autodb_api.models;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 
 @Document(collection = "engine")
 public class Engine {
-    @Id
-    private Integer id;
 
-    private Integer cylinders;
 
-    private Double displacement;
+    @Field("engine_type")
+    private String engineType;
 
-    private String type;
+    @Field("engine_cylinders")
+    private String cylinders;
+
+    @Field("enginedisplacement")
+    private String displacement;
+
 
     private String power;
 
@@ -20,36 +24,20 @@ public class Engine {
 
     private String horsepower;
 
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public Integer getCylinders() {
+    public String getCylinders() {
         return cylinders;
     }
 
-    public void setCylinders(Integer cylinders) {
+    public void setCylinders(String cylinders) {
         this.cylinders = cylinders;
     }
 
-    public Double getDisplacement() {
+    public String getDisplacement() {
         return displacement;
     }
 
-    public void setDisplacement(Double displacement) {
+    public void setDisplacement(String displacement) {
         this.displacement = displacement;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
     }
 
     public String getPower() {
@@ -74,6 +62,14 @@ public class Engine {
 
     public void setHorsepower(String horsepower) {
         this.horsepower = horsepower;
+    }
+
+    public String getEngineType() {
+        return engineType;
+    }
+
+    public void setEngineType(String engineType) {
+        this.engineType = engineType;
     }
 
 }

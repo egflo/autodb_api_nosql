@@ -27,6 +27,12 @@ public class AutoController {
     @Autowired
     private AutoService autoService;
 
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getAutoById(@PathVariable String id) {
+        return new ResponseEntity<>(autoService.getAutoByListingId(id), HttpStatus.OK);
+    }
+
     @RequestMapping(value = PATH_VARIABLE_PATTERN_SEARCH, method = RequestMethod.GET)
     public ResponseEntity<Page<Auto>> search(
             HttpServletRequest request,

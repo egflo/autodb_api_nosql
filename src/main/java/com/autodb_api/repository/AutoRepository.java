@@ -31,4 +31,6 @@ public interface AutoRepository extends MongoRepository<Auto, ObjectId> {
 
     Page<Auto> findByModel(String name, Pageable pageable);
 
+    Optional<Auto> findByListingId(String listingId);
+
 }

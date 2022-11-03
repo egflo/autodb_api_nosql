@@ -73,5 +73,9 @@ public class AutoService {
                 price_min, price_max, condition_code, model_code, pageable);
     }
 
+    public Optional<Auto> getAutoByListingId(String listing_id) {
+        return autoRepository.findByListingId(listing_id);
+    }
+
 }
 

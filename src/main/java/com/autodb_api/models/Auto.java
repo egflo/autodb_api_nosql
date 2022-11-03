@@ -53,7 +53,7 @@ public class Auto {
     @Field("highway_mpg")
     private String highwayMpg;
 
-    @Field("combined_mpg")
+    @Field("combine_mpg")
     private String combinedMpg;
 
     @Field("fuel_type")
@@ -77,6 +77,9 @@ public class Auto {
 
     @Field("listeddate")
     private Date listedDate;
+
+    @Field("daysonmarket")
+    private String daysOnMarket;
 
 
     public String getId() {
@@ -308,5 +311,12 @@ public class Auto {
     }
 
 
+    public String getDaysOnMarket() {
+        return daysOnMarket;
+    }
+
+    public void setDaysOnMarket(String daysOnMarket) {
+        this.daysOnMarket = daysOnMarket;
+    }
 
 }

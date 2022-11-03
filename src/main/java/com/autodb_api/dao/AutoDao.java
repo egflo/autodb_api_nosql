@@ -84,12 +84,22 @@ public class AutoDao {
         return makeNames;
     }
 
-
     public Double milesToMeters(Optional<Integer> miles) {
         if (miles.isPresent()) {
             return miles.get() * 1609.34;
         }
         return 250 * 1609.34;
+    }
+
+    public List<Criteria> createCriteria(String field, Optional<String> values) {
+
+        String[] codes = values.get().split("_");
+
+        List<Criteria> criteria = new ArrayList<>();
+        for (String value : codes) {
+            criteria.add(Criteria.where(field).is(value));
+        }
+        return criteria;
     }
 
     public AbstractMap.SimpleEntry<List<String>, List<String>> parseParams(ArrayList<String>params) {
@@ -143,6 +153,8 @@ public class AutoDao {
 
         Query query = new Query();
 
+        List<Criteria> finalCriteria = new ArrayList<>();
+
         for(String param : makes.size() > 0 ? makes : getMakes()) {
 
             System.out.println("param: " + param);
@@ -152,20 +164,17 @@ public class AutoDao {
             List<Criteria> criteriaList = new ArrayList<>();
 
             if(types.size() > 0) {
-                for(String type : types) {
-                    Criteria typeCriteria = Criteria.where("body").is(type);
-                    criteriaList.add(typeCriteria);
+                List<Criteria> type_criteria = new ArrayList<>();
+                for (String value : types) {
+                    type_criteria.add(Criteria.where("body.body_type").is(value));
                 }
+                criteriaList.add(new Criteria().orOperator(type_criteria.toArray(new Criteria[type_criteria.size()])));
             }
 
             if(model_code.isPresent()) {
-                String[] codes = model_code.get().split("_");
-
-                for(String code: codes) {
-                    Criteria modelCriteria = Criteria.where("model").orOperator(Criteria.where("model").is(code));
-                    criteriaList.add(modelCriteria);
-                }
-
+                List<Criteria> orCriteria = createCriteria("model", model_code);
+                Criteria orBody = new Criteria().orOperator(orCriteria.toArray(new Criteria[orCriteria.size()]));
+                criteriaList.add(orBody);
             }
 
             if(condition_code.isPresent()) {
@@ -197,52 +206,34 @@ public class AutoDao {
             }
 
             if(color_code.isPresent()) {
-                String[] codes = color_code.get().split("_");
-
-                for(String code: codes) {
-                    Criteria colorCriteria = Criteria.where("listing_color").is(code);
-                    criteriaList.add(colorCriteria);
-                }
-
+                List<Criteria> orCriteria = createCriteria("listing_color", color_code);
+                Criteria orBody = new Criteria().orOperator(orCriteria.toArray(new Criteria[orCriteria.size()]));
+                criteriaList.add(orBody);
             }
 
             if(body_code.isPresent()) {
-                String[] codes = body_code.get().split("_");
-                for(String code: codes) {
-                    Criteria bodyCriteria = Criteria.where("body").elemMatch(Criteria.where("body_type").is(code));
-                    criteriaList.add(bodyCriteria);
-                }
-
+                List<Criteria> orCriteria = createCriteria("body.body_type", body_code);
+                Criteria orBody = new Criteria().orOperator(orCriteria.toArray(new Criteria[orCriteria.size()]));
+                criteriaList.add(orBody);
             }
 
             if(drivetrain_code.isPresent()) {
-                String[] codes = drivetrain_code.get().split("_");
-
-                for(String code: codes) {
-                    Criteria drivetrainCriteria = Criteria.where("drivetrain").andOperator(Criteria.where("drivetrain").is(code));
-                    criteriaList.add(drivetrainCriteria);
-                }
-
+                List<Criteria> orCriteria = createCriteria("drivetrain.wheel_system_display", drivetrain_code);
+                Criteria orBody = new Criteria().orOperator(orCriteria.toArray(new Criteria[orCriteria.size()]));
+                criteriaList.add(orBody);
             }
 
             if(fuel_code.isPresent()) {
-                String[] codes = fuel_code.get().split("_");
-                for(String code: codes) {
-                    Criteria fuelCriteria = Criteria.where("fuel").andOperator(Criteria.where("fuel").is(code));
-                    criteriaList.add(fuelCriteria);
-                }
-
+                List<Criteria> orCriteria = createCriteria("fuel_type", fuel_code);
+                Criteria orBody = new Criteria().orOperator(orCriteria.toArray(new Criteria[orCriteria.size()]));
+                criteriaList.add(orBody);
             }
 
             if(transmission_code.isPresent()) {
-                String[] codes = transmission_code.get().split("_");
 
-                for(String code: codes) {
-                    Criteria transmissionCriteria = Criteria.where("transmission").orOperator(Criteria.where("transmission").is(code));
-
-
-                }
-
+                List<Criteria> orCriteria = createCriteria("transmission.transmission_display", transmission_code);
+                Criteria orBody = new Criteria().orOperator(orCriteria.toArray(new Criteria[orCriteria.size()]));
+                criteriaList.add(orBody);
             }
 
             if(start_year.isPresent() && end_year.isPresent()) {
@@ -312,11 +303,13 @@ public class AutoDao {
             if(criteriaList.size() > 0) {
                 Criteria[] criteriaArray = new Criteria[criteriaList.size()];
                 criteriaList.toArray(criteriaArray);
-                query.addCriteria(new Criteria().andOperator(criteriaArray));
+                criteria.andOperator(criteriaArray);
             }
 
-            query.addCriteria(criteria);
+            finalCriteria.add(criteria);
         }
+
+        query.addCriteria(new Criteria().orOperator(finalCriteria.toArray(new Criteria[finalCriteria.size()])));
 
         Sort sort = pageRequest.getSort();
 
@@ -332,19 +325,19 @@ public class AutoDao {
             }
 
             if(direction.equals("ASC")) {
-               // query.with(new Sort(Sort.Direction.ASC, property));
+                //query.with(new Sort(Sort.Direction.ASC, property));
             } else {
-               // query.with(new Sort(Sort.Direction.DESC, property));
+               //query.with(new Sort(Sort.Direction.DESC, property));
             }
         }
 
-        Long count = mongoTemplate.count(query, Auto.class, "auto");
+        //Long count = mongoTemplate.count(query, Auto.class, "auto");
         query.with(pageRequest);
 
         List<Auto> result =
                    mongoTemplate.find(query, Auto.class, "auto");
 
-        Page<Auto> page = new PageImpl<>(result, pageRequest, count);
+        Page<Auto> page = new PageImpl<>(result, pageRequest, 10);
         return page;
     }
 }

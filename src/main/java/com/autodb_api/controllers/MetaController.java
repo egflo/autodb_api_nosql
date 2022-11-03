@@ -39,7 +39,7 @@ public class MetaController {
          *
          */
 
-        return new ResponseEntity<>(metaService.getAllMetas(), HttpStatus.OK);
+        return new ResponseEntity<>(metaService.getAllMetasMap(), HttpStatus.OK);
 
     }
 

@@ -12,7 +12,11 @@ public interface MetaRepository extends MongoRepository<Meta, ObjectId> {
     @Query("{}")
     Iterable<Meta> getAllMeta();
 
-    //Page<Meta> findAll(Pageable pageable);
+
+    @Query("aggregate([{$group: {_id: '$type', count: {$sum: 1}}}, {$match: {count: {$gt: 1}}}])")
+    Iterable<Meta> getAllMetaGroupByType();
+
+    Iterable<String> findDistinctByType();
 
     Iterable<Meta> findAllByName(String name);
 
