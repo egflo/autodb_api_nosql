@@ -1,7 +1,8 @@
 package com.autodb_api.models;
 
+import com.mongodb.client.model.geojson.Point;
 import org.bson.types.ObjectId;
-import org.locationtech.jts.geom.Point;
+import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.persistence.*;
@@ -12,9 +13,9 @@ public class Location {
     @Id
     private ObjectId id;
 
-    private Integer postcode;
+    private String postcode;
 
-    private Point point;
+    private GeoJsonPoint point;
 
     public ObjectId getId() {
         return id;
@@ -24,19 +25,19 @@ public class Location {
         this.id = id;
     }
 
-    public Integer getPostcode() {
+    public String getPostcode() {
         return postcode;
     }
 
-    public void setPostcode(Integer postcode) {
+    public void setPostcode(String postcode) {
         this.postcode = postcode;
     }
 
-    public Point getPoint() {
+    public GeoJsonPoint getPoint() {
         return point;
     }
 
-    public void setPoint(Point point) {
+    public void setPoint(GeoJsonPoint point) {
         this.point = point;
     }
 

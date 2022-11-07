@@ -16,7 +16,7 @@ public interface LocationRepository extends MongoRepository<Location, ObjectId> 
 
     Page<Location> findAll (Pageable pageable);
 
-    Optional<Location> findByPostcode(Integer postcode);
+    Optional<Location> findByPostcode(String postcode);
 
 
 }

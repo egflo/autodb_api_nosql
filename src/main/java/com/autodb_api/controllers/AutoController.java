@@ -44,7 +44,7 @@ public class AutoController {
             @RequestParam Optional<Integer> startYear,
             @RequestParam Optional<Integer> endYear,
             @RequestParam Optional<Double> mileage,
-            @RequestParam Optional<Integer> postcode,
+            @RequestParam Optional<String> postcode,
             @RequestParam Optional<Integer> radius,
             @RequestParam Optional<Double> priceMin,
             @RequestParam Optional<Double> priceMax,

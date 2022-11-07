@@ -1,7 +1,9 @@
 package com.autodb_api.repository;
 
 import com.autodb_api.models.Auto;
+import com.mongodb.client.model.geojson.Point;
 import org.bson.types.ObjectId;
+import org.locationtech.jts.algorithm.Distance;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
@@ -32,5 +34,9 @@ public interface AutoRepository extends MongoRepository<Auto, ObjectId> {
     Page<Auto> findByModel(String name, Pageable pageable);
 
     Optional<Auto> findByListingId(String listingId);
+
+
+    Iterable<Auto> findByDealerNear(Point point, Distance distance);
+
 
 }

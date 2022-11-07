@@ -1,8 +1,8 @@
 package com.autodb_api.models;
 
 
-import com.mongodb.client.model.geojson.Point;
-import org.springframework.data.annotation.Id;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -30,6 +30,8 @@ public class Dealer {
     @Field("seller_rating")
     private Double sellerRating;
 
+    @JsonIgnore
+    private GeoJsonPoint point;
 
     public String getPostcode() {
         return postcode;
@@ -111,4 +113,5 @@ public class Dealer {
     public void setLatitude(String latitude) {
         this.latitude = latitude;
     }
+
 }

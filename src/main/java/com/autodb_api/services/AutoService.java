@@ -59,7 +59,7 @@ public class AutoService {
                              Optional<Integer> start_year,
                              Optional<Integer> end_year,
                              Optional<Double> mileage,
-                             Optional<Integer> postcode,
+                             Optional<String> postcode,
                              Optional<Integer> radius,
                              Optional<Double> price_min,
                              Optional<Double> price_max,

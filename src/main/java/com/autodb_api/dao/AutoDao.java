@@ -9,9 +9,9 @@ import com.google.maps.GeoApiContext;
 import com.google.maps.GeocodingApi;
 import com.google.maps.model.GeocodingResult;
 import com.google.maps.model.Geometry;
+import com.mongodb.client.model.geojson.Point;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.PrecisionModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,6 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
@@ -70,7 +71,7 @@ public class AutoDao {
         List<Meta> bodyTypes = (List<Meta>) metaRepository.findAllByType("body");
         List<String> bodyTypeNames = new ArrayList<>();
         for (Meta bodyType : bodyTypes) {
-            bodyTypeNames.add(bodyType.getName().toLowerCase());
+            bodyTypeNames.add(bodyType.getName());
         }
         return bodyTypeNames;
     }
@@ -102,7 +103,10 @@ public class AutoDao {
         return criteria;
     }
 
-    public AbstractMap.SimpleEntry<List<String>, List<String>> parseParams(ArrayList<String>params) {
+    public AbstractMap.SimpleEntry<List<String>, List<String>> parseParams(ArrayList<String> params) {
+
+
+
         List<String> bodyTypes = getBodyTypes();
         List<String> makes = getMakes();
 
@@ -110,6 +114,9 @@ public class AutoDao {
         List<String> makes_params = new ArrayList<>();
 
         for (String param : params) {
+
+            System.out.println("param: " + param);
+
            if(bodyTypes.contains(param)) {
                type_params.add(param);
            } else if(makes.contains(param)) {
@@ -135,7 +142,7 @@ public class AutoDao {
                                        Optional<Integer> start_year,
                                        Optional<Integer> end_year,
                                        Optional<Double> mileage,
-                                       Optional<Integer> postcode,
+                                       Optional<String> postcode,
                                        Optional<Integer> radius,
                                        Optional<Double> priceMin,
                                        Optional<Double> priceMax,
@@ -157,9 +164,11 @@ public class AutoDao {
 
         for(String param : makes.size() > 0 ? makes : getMakes()) {
 
-            System.out.println("param: " + param);
-
             Criteria criteria = Criteria.where("make").is(param);
+
+            if (param.contains("all")) {
+                criteria = Criteria.where("make").exists(true);
+            }
 
             List<Criteria> criteriaList = new ArrayList<>();
 
@@ -256,13 +265,21 @@ public class AutoDao {
                 try {
                     Optional<Location> location = locationRepository.findByPostcode(postcode.get());
                     if(location.isPresent()) {
-                        //double lat = location.get().getLat();
-                        //double lon = location.get().getLon();
-                       // double radiusInMiles = radius.isPresent() ? radius.get() : 100;
+                        GeoJsonPoint point = location.get().getPoint();
+                        double lat = point.getY();
+                        double lon = point.getX();
+
+                        // double radiusInMiles = radius.isPresent() ? radius.get() : 100;
                        // double radiusInKm = radiusInMiles * 1.60934;
                        // Criteria locationCriteria = Criteria.where("location").nearSphere(new Point(lon, lat)).maxDistance(radiusInKm);
                        // query.addCriteria(locationCriteria);
+                        double radiusInMiles = milesToMeters(radius);
+
+                        Criteria locationCriteria =
+                                Criteria.where("dealer.point").nearSphere(point).maxDistance(radiusInMiles);
+                        criteriaList.add(locationCriteria);
                     } else {
+
                         GeoApiContext context = new GeoApiContext.Builder()
                                 .apiKey(googleApiKey)
                                 .build();
@@ -272,14 +289,20 @@ public class AutoDao {
 
                         Location newLocation = new Location();
                         newLocation.setPostcode(postcode.get());
-                        Coordinate coordinate = new Coordinate(geometry.location.lng, geometry.location.lat);
-                        Point comparisonPoint = factory.createPoint(coordinate);
-                        newLocation.setPoint(comparisonPoint);
+                        //Coordinate coordinate = new Coordinate(geometry.location.lng, geometry.location.lat);
+                        //Point comparisonPoint = factory.createPoint(coordinate);
+                        //Point comparisonPoint = factory.createPoint(coordinate);
+                        //newLocation.setPoint(comparisonPoint);
+
+                        GeoJsonPoint point = new GeoJsonPoint(geometry.location.lng, geometry.location.lat);
+                        newLocation.setPoint(point);
 
                         Location save = locationRepository.save(newLocation);
 
-                       // Predicate dealerPredicate = SpatialPredicates.distanceWithin(criteriaBuilder, root.get("dealer").get("location"), save.getPoint(), milesToMeters(radius));
-                       // subPredicates.add(dealerPredicate);
+                        double radiusInMiles = milesToMeters(radius);
+                        Criteria locationCriteria =
+                                Criteria.where("dealer.point").nearSphere(point).maxDistance(radiusInMiles);
+                        criteriaList.add(locationCriteria);
                     }
 
                 } catch (Exception e) {
