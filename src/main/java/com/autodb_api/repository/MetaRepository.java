@@ -21,4 +21,6 @@ public interface MetaRepository extends MongoRepository<Meta, ObjectId> {
     Iterable<Meta> findAllByName(String name);
 
     Iterable<Meta> findAllByType(String type);
+
+    Iterable<Meta> findMetaByAux(String aux);
 }

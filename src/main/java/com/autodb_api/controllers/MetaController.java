@@ -17,7 +17,15 @@ public class MetaController {
     @Autowired private MetaService metaService;
 
 
+    @GetMapping("make/{make}")
+    public ResponseEntity<?> getMake(@PathVariable String make) {
+        return new ResponseEntity<>(metaService.getModelsByMake(make), HttpStatus.OK);
+    }
 
+    @GetMapping("aux/{aux}")
+    public ResponseEntity<?> getAux(@PathVariable String aux) {
+        return new ResponseEntity<>(metaService.getMetasByAux(aux), HttpStatus.OK);
+    }
 
     @GetMapping("/all")
     public ResponseEntity<?> getAllMetas(

@@ -1,9 +1,11 @@
 package com.autodb_api.services;
 
 import com.autodb_api.models.Auto;
+import com.autodb_api.models.MakeModel;
 import com.autodb_api.models.Meta;
 import com.autodb_api.models.MetaType;
 import com.autodb_api.repository.AutoRepository;
+import com.autodb_api.repository.MakeModelRepository;
 import com.autodb_api.repository.MetaRepository;
 import com.autodb_api.repository.MetaTypeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +27,15 @@ public class MetaService {
 
     @Autowired
     private MetaTypeRepository metaTypeRepository;
+
+    @Autowired
+    private MakeModelRepository makeModelRepository;
+
+
+    public List<MakeModel> getModelsByMake(String type) {
+        return makeModelRepository.findByMake(type);
+
+    }
 
     public Map<String, List<Meta>> getAllMetasMap() {
 
@@ -56,7 +67,9 @@ public class MetaService {
         return metaRepository.findAllByType(type);
     }
 
-
+    public Iterable<Meta> getMetasByAux(String type) {
+        return metaRepository.findMetaByAux(type);
+    }
 }
 
 

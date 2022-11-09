@@ -227,7 +227,7 @@ public class AutoDao {
             }
 
             if(drivetrain_code.isPresent()) {
-                List<Criteria> orCriteria = createCriteria("drivetrain.wheel_system_display", drivetrain_code);
+                List<Criteria> orCriteria = createCriteria("drivetrain.wheel_system", drivetrain_code);
                 Criteria orBody = new Criteria().orOperator(orCriteria.toArray(new Criteria[orCriteria.size()]));
                 criteriaList.add(orBody);
             }
@@ -240,7 +240,7 @@ public class AutoDao {
 
             if(transmission_code.isPresent()) {
 
-                List<Criteria> orCriteria = createCriteria("transmission.transmission_display", transmission_code);
+                List<Criteria> orCriteria = createCriteria("transmission.transmission", transmission_code);
                 Criteria orBody = new Criteria().orOperator(orCriteria.toArray(new Criteria[orCriteria.size()]));
                 criteriaList.add(orBody);
             }
@@ -261,55 +261,6 @@ public class AutoDao {
                 criteriaList.add(mileageCriteria);
             }
 
-            if(postcode.isPresent()) {
-                try {
-                    Optional<Location> location = locationRepository.findByPostcode(postcode.get());
-                    if(location.isPresent()) {
-                        GeoJsonPoint point = location.get().getPoint();
-                        double lat = point.getY();
-                        double lon = point.getX();
-
-                        // double radiusInMiles = radius.isPresent() ? radius.get() : 100;
-                       // double radiusInKm = radiusInMiles * 1.60934;
-                       // Criteria locationCriteria = Criteria.where("location").nearSphere(new Point(lon, lat)).maxDistance(radiusInKm);
-                       // query.addCriteria(locationCriteria);
-                        double radiusInMiles = milesToMeters(radius);
-
-                        Criteria locationCriteria =
-                                Criteria.where("dealer.point").nearSphere(point).maxDistance(radiusInMiles);
-                        criteriaList.add(locationCriteria);
-                    } else {
-
-                        GeoApiContext context = new GeoApiContext.Builder()
-                                .apiKey(googleApiKey)
-                                .build();
-                        GeocodingResult[] results =  GeocodingApi.geocode(context,
-                                String.valueOf(postcode)).await();
-                        Geometry geometry = results[0].geometry;
-
-                        Location newLocation = new Location();
-                        newLocation.setPostcode(postcode.get());
-                        //Coordinate coordinate = new Coordinate(geometry.location.lng, geometry.location.lat);
-                        //Point comparisonPoint = factory.createPoint(coordinate);
-                        //Point comparisonPoint = factory.createPoint(coordinate);
-                        //newLocation.setPoint(comparisonPoint);
-
-                        GeoJsonPoint point = new GeoJsonPoint(geometry.location.lng, geometry.location.lat);
-                        newLocation.setPoint(point);
-
-                        Location save = locationRepository.save(newLocation);
-
-                        double radiusInMiles = milesToMeters(radius);
-                        Criteria locationCriteria =
-                                Criteria.where("dealer.point").nearSphere(point).maxDistance(radiusInMiles);
-                        criteriaList.add(locationCriteria);
-                    }
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-            }
 
             if(priceMin.isPresent() && priceMax.isPresent()) {
                 Criteria priceCriteria = Criteria.where("price").gte(priceMin.get()).lte(priceMax.get());
@@ -332,8 +283,61 @@ public class AutoDao {
             finalCriteria.add(criteria);
         }
 
-        query.addCriteria(new Criteria().orOperator(finalCriteria.toArray(new Criteria[finalCriteria.size()])));
 
+        Criteria criteria = new Criteria();
+
+
+        if(postcode.isPresent()) {
+            try {
+                Optional<Location> location = locationRepository.findByPostcode(postcode.get());
+                if(location.isPresent()) {
+                    GeoJsonPoint point = location.get().getPoint();
+                    double radiusInMiles = milesToMeters(radius);
+
+                    Criteria locationCriteria =
+                            Criteria.where("dealer.point").nearSphere(point).maxDistance(radiusInMiles);
+                    criteria.andOperator(
+                            locationCriteria,
+                            new Criteria().orOperator(finalCriteria.toArray(new Criteria[finalCriteria.size()]))
+
+                    );
+
+                } else {
+
+                    GeoApiContext context = new GeoApiContext.Builder()
+                            .apiKey(googleApiKey)
+                            .build();
+                    GeocodingResult[] results =  GeocodingApi.geocode(context,
+                            String.valueOf(postcode)).await();
+                    Geometry geometry = results[0].geometry;
+
+                    Location newLocation = new Location();
+                    newLocation.setPostcode(postcode.get());
+                    GeoJsonPoint point = new GeoJsonPoint(geometry.location.lng, geometry.location.lat);
+                    newLocation.setPoint(point);
+
+                    Location save = locationRepository.save(newLocation);
+
+                    double radiusInMiles = milesToMeters(radius);
+                    Criteria locationCriteria =
+                            Criteria.where("dealer.point").nearSphere(point).maxDistance(radiusInMiles);
+                    criteria.andOperator(
+                            locationCriteria,
+                            new Criteria().orOperator(finalCriteria.toArray(new Criteria[finalCriteria.size()]))
+                    );
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
+
+        else {
+            criteria.orOperator(finalCriteria.toArray(new Criteria[finalCriteria.size()]));
+        }
+
+        query.addCriteria(criteria);
         Sort sort = pageRequest.getSort();
 
         for (Sort.Order order : sort)

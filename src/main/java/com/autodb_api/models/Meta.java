@@ -13,6 +13,7 @@ public class Meta {
 
     private Integer count;
 
+    private String aux;
 
     public String getId() {
 
@@ -47,4 +48,11 @@ public class Meta {
         this.count = count;
     }
 
+    public String getAux() {
+        return aux;
+    }
+
+    public void setAux(String aux) {
+        this.aux = aux;
+    }
 }
