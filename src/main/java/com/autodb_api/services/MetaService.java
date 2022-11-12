@@ -37,18 +37,23 @@ public class MetaService {
 
     }
 
-    public Map<String, List<Meta>> getAllMetasMap() {
+    public Map<String, List<Meta>> getAllMetasMap(List<String> params) {
 
 
         Map<String, List<Meta>> metaMap = new HashMap<>();
         List<MetaType> types = metaTypeRepository.findAll();
 
         for (MetaType type : types) {
-
-            System.out.println("type: " + type.getType());
-
            List<Meta> metaType = (List<Meta>) metaRepository.findAllByType(type.getType());
             metaMap.put(type.getType(), metaType);
+        }
+
+        for (String param : params) {
+            List<Meta> metaType = (List<Meta>) metaRepository.findMetaByAux(param);
+
+            if(metaType.size() > 0) {
+                metaMap.put(param, metaType);
+            }
         }
 
         return metaMap;

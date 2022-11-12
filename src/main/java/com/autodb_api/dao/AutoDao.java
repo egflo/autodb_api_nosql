@@ -21,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.AbstractMap;
@@ -105,8 +106,6 @@ public class AutoDao {
 
     public AbstractMap.SimpleEntry<List<String>, List<String>> parseParams(ArrayList<String> params) {
 
-
-
         List<String> bodyTypes = getBodyTypes();
         List<String> makes = getMakes();
 
@@ -158,7 +157,7 @@ public class AutoDao {
         List<String> types = tuple.getValue();
 
 
-        Query query = new Query();
+        Query query = new Query().with(pageRequest);
 
         List<Criteria> finalCriteria = new ArrayList<>();
 
@@ -337,6 +336,7 @@ public class AutoDao {
             criteria.orOperator(finalCriteria.toArray(new Criteria[finalCriteria.size()]));
         }
 
+
         query.addCriteria(criteria);
         Sort sort = pageRequest.getSort();
 
@@ -358,13 +358,25 @@ public class AutoDao {
             }
         }
 
-        //Long count = mongoTemplate.count(query, Auto.class, "auto");
-        query.with(pageRequest);
 
-        List<Auto> result =
-                   mongoTemplate.find(query, Auto.class, "auto");
+        //Optimize count query
+        mongoTemplate.useEstimatedCount(true);
+        //Query count_query = new Query();
+        //count_query.addCriteria(criteria);
+        //count_query.fields().include("_id");
+        //long count = mongoTemplate.count(count_query, Auto.class);
+        //query.with(pageRequest);
+        //List<Auto> result =
+                  // mongoTemplate.find(query, Auto.class, "auto");
+        //Page<Auto> page = new PageImpl<>(result, pageRequest, count);
 
-        Page<Auto> page = new PageImpl<>(result, pageRequest, 10);
+
+        Page<Auto> page = PageableExecutionUtils.getPage(
+                mongoTemplate.find(query, Auto.class, "auto"),
+                pageRequest,
+                () -> mongoTemplate.count(query, Auto.class, "auto")
+        );
+
         return page;
     }
 }

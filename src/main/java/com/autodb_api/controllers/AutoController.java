@@ -62,7 +62,7 @@ public class AutoController {
         }
 
         Pageable pageable =
-                PageRequest.of(page.orElse(0), limit.orElse(10), direction, sortBy.orElse("id"));
+                PageRequest.of(page.orElse(0), limit.orElse(10), direction, sortBy.orElse("price"));
 
         //Get URL from request
         String url = request.getRequestURL().toString();

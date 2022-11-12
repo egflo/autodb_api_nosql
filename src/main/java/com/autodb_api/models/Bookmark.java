@@ -1,6 +1,7 @@
 package com.autodb_api.models;
 
 
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -9,35 +10,30 @@ import java.util.Date;
 @Document(collection = "bookmarks")
 public class Bookmark {
     @Id
-    private Integer id;
+    private ObjectId id;
 
-    private Integer autoId;
+    private ObjectId autoIdId;
     private String userId;
     private Date created;
 
-    public Bookmark(Integer id, Integer autoId, String userId, Date created) {
-        this.id = id;
-        this.autoId = autoId;
-        this.userId = userId;
-        this.created = created;
+    public Bookmark() {
     }
 
-    public Integer getId() {
-        return id;
+    public String getId() {
+        return id.toHexString();
     }
 
-    public void setId(Integer id) {
+    public void setId(ObjectId id) {
         this.id = id;
     }
 
-    public Integer getAutoId() {
-        return autoId;
+    public String getAutoIdId() {
+        return autoIdId.toHexString();
     }
 
-    public void setAutoId(Integer autoId) {
-        this.autoId = autoId;
+    public void setAutoId(String autoId) {
+        this.autoIdId = new ObjectId(autoId);
     }
-
     public String getUserId() {
         return userId;
     }
